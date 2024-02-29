@@ -19,6 +19,8 @@ struct ContentView: View {
     @State private var chosenFlag = -1
     @State private var animationAmount = 0.0
     @State private var opacityVal = 1.0
+    @State private var scaleVal = 1.0
+
     
     @State private var answerTextColor: Color = .white
     @State private var waitingForNextRound = false
@@ -75,6 +77,7 @@ struct ContentView: View {
                         .rotation3DEffect(.degrees(number == chosenFlag ? animationAmount : 0),axis: (x: 0.0, y: 1.0, z: 0.0))
                         .opacity(number == chosenFlag ? 1 : opacityVal)
                         .disabled(waitingForNextRound)
+                        .scaleEffect(number == chosenFlag ? 1 : scaleVal)
 
                         
                     }
@@ -142,6 +145,7 @@ struct ContentView: View {
         waitingForNextRound = true
         chosenFlag = number
         opacityVal = 0.5
+        scaleVal = 0.7
         if number == correctAnswer{
             scoreTitle = "Correct"
             userScore+=1
@@ -160,6 +164,7 @@ struct ContentView: View {
         waitingForNextRound = false
         chosenFlag = -1
         opacityVal = 1
+        scaleVal = 1
         if(rounds < 8){
             countries.shuffle()
             correctAnswer = Int.random(in: 0...2)
