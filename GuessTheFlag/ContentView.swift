@@ -16,6 +16,13 @@ struct ContentView: View {
     @State private var rounds = 1
     @State private var showingGameOver = false
     
+    @State private var chosenFlag = -1
+    @State private var animationAmount = 0.0
+    @State private var opacityVal = 1.0
+    
+    @State private var answerTextColor: Color = .white
+    
+    
     struct FlagImage: View {
         var text: String
         
@@ -53,12 +60,23 @@ struct ContentView: View {
                     
                     ForEach(0..<3){ number in
                         Button{
-                            flagTapped(number)
-                        } label: {
+                            withAnimation{
+                                animationAmount += 360
+                                flagTapped(number)
+                            
+                            }
+                            
+                        }
+                        label: {
                             FlagImage(text: countries[number])
                             
                         }
+                        .rotation3DEffect(.degrees(number == chosenFlag ? animationAmount : 0),axis: (x: 0.0, y: 1.0, z: 0.0))
+                        .opacity(number == chosenFlag ? 1 : opacityVal)
+
+                        
                     }
+
                     
                 }
                 .frame(maxWidth: .infinity)
@@ -67,6 +85,21 @@ struct ContentView: View {
                 .cornerRadius(15)
                 
                 Spacer()
+                if(showingScore == true){
+                    VStack{
+                        Text(scoreTitle)
+                            .foregroundStyle(answerTextColor)
+                            .font(.largeTitle.bold())
+                            .transition(.opacity)
+                        Button("NEXT"){
+                            showingScore = false
+                            askQuestion()
+                        }
+                        .foregroundStyle(.white)
+                        .font(.largeTitle.bold())
+                    }
+                    
+                }
                 Spacer()
                 Text(String("Score: \(userScore)"))
                     .foregroundStyle(.white)
@@ -78,12 +111,12 @@ struct ContentView: View {
             }
             .padding()
         }
-        .alert(scoreTitle, isPresented: $showingScore){
-            Button("Continue", action: askQuestion)
-        } message: {
-            Text("Score: \(userScore)")
+        //.alert(scoreTitle, isPresented: $showingScore){
+          //  Button("Continue", action: askQuestion)
+        //} message: {
+          //  Text("Score: \(userScore)")
             
-        }
+  //      }
         .alert("Game is Over", isPresented: $showingGameOver){
             Button("Continue", action: gameOver)
         } message: {
@@ -94,6 +127,9 @@ struct ContentView: View {
         
         
     }
+    
+
+    
     func gameOver(){
         rounds = 0
         userScore = 0
@@ -101,17 +137,25 @@ struct ContentView: View {
     }
     
     func flagTapped(_ number: Int){
+        chosenFlag = number
+        opacityVal = 0.5
         if number == correctAnswer{
             scoreTitle = "Correct"
             userScore+=1
+            answerTextColor = .green
         }
         else{
-            scoreTitle  = "Wrong, thats the flag of \(countries[number])"
+            scoreTitle  = "That's \(countries[number])'s flag"
+            answerTextColor = .red
         }
-        showingScore = true
+        withAnimation{
+            showingScore = true
+        }
     }
     
     func askQuestion() {
+        chosenFlag = -1
+        opacityVal = 1
         if(rounds < 8){
             countries.shuffle()
             correctAnswer = Int.random(in: 0...2)
