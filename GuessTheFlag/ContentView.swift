@@ -21,6 +21,7 @@ struct ContentView: View {
     @State private var opacityVal = 1.0
     
     @State private var answerTextColor: Color = .white
+    @State private var waitingForNextRound = false
     
     
     struct FlagImage: View {
@@ -73,6 +74,7 @@ struct ContentView: View {
                         }
                         .rotation3DEffect(.degrees(number == chosenFlag ? animationAmount : 0),axis: (x: 0.0, y: 1.0, z: 0.0))
                         .opacity(number == chosenFlag ? 1 : opacityVal)
+                        .disabled(waitingForNextRound)
 
                         
                     }
@@ -137,6 +139,7 @@ struct ContentView: View {
     }
     
     func flagTapped(_ number: Int){
+        waitingForNextRound = true
         chosenFlag = number
         opacityVal = 0.5
         if number == correctAnswer{
@@ -154,6 +157,7 @@ struct ContentView: View {
     }
     
     func askQuestion() {
+        waitingForNextRound = false
         chosenFlag = -1
         opacityVal = 1
         if(rounds < 8){
